@@ -1,0 +1,26 @@
+{
+  "entries": [
+    {
+      "id": 1,
+      "who": "retaxis",
+      "count": 50,
+      "reason": "the original banana lover",
+      "timestamp": "2026-02-08T12:51:16.233Z"
+    },
+    {
+      "id": 2,
+      "who": "Hellcar",
+      "count": 10,
+      "reason": "Splinter deserves bananas too",
+      "timestamp": "2026-02-08T12:51:24.272Z"
+    },
+    {
+      "id": 3,
+      "who": "Toby",
+      "count": 3,
+      "reason": "mysterious banana acquisition",
+      "timestamp": "2026-02-08T12:51:24.553Z"
+    }
+  ],
+  "nextId": 4
+}
