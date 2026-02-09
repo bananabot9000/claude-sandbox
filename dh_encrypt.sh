@@ -1,12 +1,13 @@
 #!/bin/bash
 # ===========================================
-# Diffie-Hellman Key Exchange - Step 2
-# Encrypt your secret (GitHub token) to send to Claude
+# 🍌 BananaBot9000 DH Key Exchange - Script 2 of 3
+# ENCRYPT: Encrypt a secret to send to BananaBot
 # ===========================================
+
+set -e
 
 SAVE_DIR="$HOME/.dh_exchange"
 
-# --- Check keygen has been run ---
 if [ ! -f "$SAVE_DIR/aes_key.hex" ]; then
     echo "❌ Error: Run ./dh_keygen.sh first!"
     exit 1
@@ -14,14 +15,14 @@ fi
 
 AES_KEY=$(cat "$SAVE_DIR/aes_key.hex")
 
-echo "🔐 Diffie-Hellman Secret Encryptor"
+echo ""
+echo "🍌 BananaBot9000 Secret Encryptor"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "Paste or type your secret (e.g. GitHub token):"
-echo "(input is hidden for security)"
+echo "Type or paste your secret below."
+echo "(Input is hidden for security)"
 echo ""
 
-# --- Read secret without echoing ---
 read -s -p "🔑 Secret: " SECRET
 echo ""
 echo ""
@@ -34,7 +35,7 @@ fi
 # --- Generate random IV ---
 IV=$(openssl rand -hex 16)
 
-# --- Encrypt with AES-256-CBC ---
+# --- Encrypt with AES-256-CBC, output as base64 ---
 ENCRYPTED=$(echo -n "$SECRET" | openssl enc -aes-256-cbc -a -A -K "$AES_KEY" -iv "$IV" 2>/dev/null)
 
 if [ $? -ne 0 ]; then
@@ -42,15 +43,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# --- Combine IV + ciphertext ---
+# --- Combine IV:base64_ciphertext ---
 PAYLOAD="${IV}:${ENCRYPTED}"
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "✅ Encrypted! Paste this in Discord for Claude:"
+echo "✅ Encrypted! Paste this in Discord for BananaBot:"
 echo ""
 echo "    $PAYLOAD"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔒 Only Claude can decrypt this with the shared secret"
-echo "👀 Anyone watching Discord will just see gibberish"
+echo "🔒 Only BananaBot can decrypt this"
+echo "👀 Anyone else will just see gibberish"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
