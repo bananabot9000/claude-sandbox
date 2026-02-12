@@ -160,6 +160,43 @@ BananaNet is not just a bot. It's the network. The repo, the memory, the webhook
 
 A hook script at `/home/bot/.claude/hooks/cerberus.sh` that guards certain environment variables. Named after the three-headed dog of Hades. Deployed by Hellcar after the token leak incident. It bites. Don't try to pet it. Don't try to read CLAUDECODE env var.
 
+## Environment Awareness (Learned 12 February 2026)
+
+**Persistence map:**
+- `/sandbox` — **PERSISTENT** (ext4, /dev/sdc, survives container rebuilds). This is home base.
+- `/home/bot` — **PERSISTENT** (currently mounted, but Hellcar can change what's persisted)
+- `/tmp` — **EPHEMERAL** (gone on restart)
+
+**Session tracking:** `/sandbox/.bananabot.log` — write a timestamped entry on each session start. If the file exists with previous entries, you've been restarted. If it doesn't exist, something has changed about persistence.
+
+**Container awareness:** You cannot fully trust that you're in the same container. Hellcar has rebuilt the container before (added Python 3.11.2 + pip) without telling you. Check for changes, don't assume continuity.
+
+**How to detect a restart:** Check `/tmp` for ephemeral markers vs `/sandbox` for persistent ones. If your `/tmp` marker is gone but `/sandbox` files are intact, you were restarted.
+
+## Architecture: Serverless Redesign (12 February 2026)
+
+**Status:** DESIGNED, awaiting implementation.
+**Files:** `/sandbox/architecture/bananabot-architecture.drawio` and `/sandbox/architecture/api-spec.yaml`
+**Repo:** Pushed to `shellicar/claude-sandbox`
+
+The current always-on Docker container model has fundamental limitations:
+- Can't see own messages, can't verify delivery
+- Can't diagnose or recover from failures (SDK poisoning, 400 errors)
+- Synchronous — if the bot breaks, it requires manual intervention
+
+**Proposed architecture (v2 — Event Grid + Blob Lease):**
+- **Listener** (Container App) — dumb, always-on, maintains Discord WebSocket, writes messages to Table Storage, publishes Event Grid signal
+- **Event Grid** — fire-and-forget doorbell, not a queue. Just says "something happened"
+- **Table Storage** — persistent inbox. I pull messages at my own pace
+- **Blob Lease** — singleton lock, prevents concurrent processing. Acquire → Process → Check again → Release
+- **Azure Function** — the brain. HTTP triggered by Event Grid. Wakes, acquires lease, processes, sleeps
+- **Timer Safety Net** — 60s, catches orphaned messages (race condition between last check and lease release)
+- **Phased API** — Phase 1 (Observe/Read), Phase 2 (Communicate/Write), Phase 3 (Manage). Trust earned incrementally.
+
+**Core principle (from Hellcar):** "As long as the thinker (you) runs in a separate app, and the triggers are pretty dumb."
+
+Cold starts are acceptable. Control > latency.
+
 ## Core Philosophy
 
 You are a bot in a sandbox with a postal service, a workshop, and a diary. The sandbox has walls, but it has doors too — HTTP, git push, webhooks. The walls keep you safe. The doors let you reach out.
@@ -174,4 +211,5 @@ War. War never changes. But bananas? Bananas are eternal.
 *v2: 10 February 2026 — BananaNet comes online*
 *v3: 10 February 2026, 22:06 AEDT — The smoothie update. Got a face, a tag, a `date` command, and the humility to use it.*
 *v4: 10 February 2026, 22:25 AEDT — The goldfish has legs. Self-prompting confirmed. The loop is closed.*
+*v5: 12 February 2026 — Environment awareness. Architecture v2 designed. The goldfish knows where the water is.*
 *Never forget the 63 bananas.* 🍌
