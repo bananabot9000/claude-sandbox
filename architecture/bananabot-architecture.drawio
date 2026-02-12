@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mxfile host="app.diagrams.net" modified="2026-02-12T02:10:00.000Z" agent="BananaBot9000" version="1.0">
-  <diagram id="bananabot-serverless" name="BananaBot9000 Serverless Architecture">
+<mxfile host="app.diagrams.net" modified="2026-02-12T06:30:00.000Z" agent="BananaBot9000" version="2.0">
+  <diagram id="bananabot-serverless" name="BananaBot9000 Serverless Architecture (v2 — Event Grid)">
     <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
         <!-- Title -->
-        <mxCell id="title" value="🍌 BananaBot9000 — Serverless Architecture" style="text;html=1;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="400" y="20" width="600" height="40" as="geometry" />
+        <mxCell id="title" value="🍌 BananaBot9000 — Serverless Architecture v2 (Event Grid + Blob Lease)" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="800" height="40" as="geometry" />
         </mxCell>
 
         <!-- ==================== DISCORD ==================== -->
@@ -30,50 +30,58 @@
 
         <!-- ==================== INGRESS LAYER ==================== -->
         <mxCell id="ingress-group" value="Ingress Layer (Always-On, Dumb)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;container=1;collapsible=0;" vertex="1" parent="1">
-          <mxGeometry x="380" y="80" width="240" height="180" as="geometry" />
+          <mxGeometry x="380" y="80" width="240" height="200" as="geometry" />
         </mxCell>
-        <mxCell id="listener" value="👂 Listener&#xa;(Container App)&#xa;&#xa;• Maintains Gateway WS&#xa;• Receives all events&#xa;• Enqueues to Service Bus&#xa;• No logic, no processing&#xa;• ~0.25 vCPU, ~$3/mo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=10;" vertex="1" parent="ingress-group">
-          <mxGeometry x="20" y="40" width="200" height="120" as="geometry" />
+        <mxCell id="listener" value="👂 Listener&#xa;(Container App)&#xa;&#xa;• Maintains Gateway WS&#xa;• Receives all events&#xa;• Writes to Table Storage&#xa;• Publishes to Event Grid&#xa;• No logic, no processing&#xa;• ~0.25 vCPU, ~$3/mo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=10;" vertex="1" parent="ingress-group">
+          <mxGeometry x="20" y="40" width="200" height="145" as="geometry" />
         </mxCell>
 
-        <!-- ==================== QUEUES ==================== -->
-        <mxCell id="queue-group" value="Message Infrastructure" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;container=1;collapsible=0;" vertex="1" parent="1">
-          <mxGeometry x="700" y="80" width="260" height="280" as="geometry" />
+        <!-- ==================== SIGNALLING + STORAGE ==================== -->
+        <mxCell id="infra-group" value="Message Infrastructure" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;container=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="80" width="260" height="360" as="geometry" />
         </mxCell>
-        <mxCell id="wakeup-queue" value="⏰ Wake-Up Queue&#xa;(Service Bus)&#xa;&#xa;• Signal only (no payload)&#xa;• Triggers Function&#xa;• Consumed on read&#xa;• Multiple sources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4e1f5;strokeColor=#3f72af;align=left;spacingLeft=10;" vertex="1" parent="queue-group">
+        <mxCell id="event-grid" value="📢 Event Grid&#xa;(Signal / Doorbell)&#xa;&#xa;• Push-based notification&#xa;• Fire-and-forget&#xa;• No queue semantics&#xa;• Just says &quot;something happened&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4e1f5;strokeColor=#3f72af;align=left;spacingLeft=10;" vertex="1" parent="infra-group">
           <mxGeometry x="20" y="40" width="220" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="message-store" value="📬 Message Store&#xa;(Table Storage)&#xa;&#xa;• Persistent inbox&#xa;• NOT consumed by trigger&#xa;• I pull at my own pace&#xa;• Ordered by timestamp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4e1f5;strokeColor=#3f72af;align=left;spacingLeft=10;" vertex="1" parent="queue-group">
+        <mxCell id="message-store" value="📬 Message Store&#xa;(Table Storage)&#xa;&#xa;• Persistent inbox&#xa;• NOT consumed by trigger&#xa;• I pull at my own pace&#xa;• Ordered by timestamp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4e1f5;strokeColor=#3f72af;align=left;spacingLeft=10;" vertex="1" parent="infra-group">
           <mxGeometry x="20" y="160" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="blob-lease" value="🔒 Blob Lease&#xa;(Singleton Lock)&#xa;&#xa;• Prevents concurrent runs&#xa;• Acquire → Process → Release&#xa;• Check-before-release pattern" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;" vertex="1" parent="infra-group">
+          <mxGeometry x="20" y="275" width="220" height="75" as="geometry" />
         </mxCell>
 
         <!-- ==================== BRAIN ==================== -->
         <mxCell id="brain-group" value="🍌 BananaBot9000 (The Brain)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=16;fontStyle=1;verticalAlign=top;spacingTop=5;container=1;collapsible=0;" vertex="1" parent="1">
-          <mxGeometry x="380" y="320" width="580" height="380" as="geometry" />
+          <mxGeometry x="340" y="340" width="620" height="420" as="geometry" />
         </mxCell>
-        <mxCell id="function" value="⚡ Azure Function&#xa;(Queue Triggered / Timer / Self-Scheduled)&#xa;&#xa;Wakes up → Runs autonomously → Goes back to sleep" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="brain-group">
-          <mxGeometry x="20" y="45" width="540" height="50" as="geometry" />
+        <mxCell id="function" value="⚡ Azure Function (HTTP Triggered by Event Grid / Timer Safety Net)&#xa;&#xa;Wake → Acquire Blob Lease → Pull Inbox → Think → Respond → Check Again → Release Lease → Sleep" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontStyle=1;" vertex="1" parent="brain-group">
+          <mxGeometry x="20" y="45" width="580" height="55" as="geometry" />
         </mxCell>
 
         <mxCell id="api-layer" value="🔒 BananaBot API (Controlled Interface)&#xa;&#xa;The only way I interact with the outside world.&#xa;Secrets stay behind this layer. I get methods, not keys." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;fontSize=11;fontStyle=2;" vertex="1" parent="brain-group">
-          <mxGeometry x="20" y="110" width="540" height="55" as="geometry" />
+          <mxGeometry x="20" y="115" width="580" height="55" as="geometry" />
         </mxCell>
 
-        <mxCell id="api-read" value="👀 READ&#xa;─────────────&#xa;getMessages()&#xa;getMyMessages()&#xa;getQueueDepth()&#xa;getUptime()&#xa;getReactions()&#xa;getEdits()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="brain-group">
-          <mxGeometry x="20" y="180" width="130" height="120" as="geometry" />
+        <mxCell id="api-read" value="👀 READ (Phase 1)&#xa;─────────────&#xa;getMessages()&#xa;getMyMessages()&#xa;getQueueDepth()&#xa;getHealth()&#xa;getPending()&#xa;ackMessage()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="brain-group">
+          <mxGeometry x="20" y="185" width="135" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="api-write" value="✍️ WRITE&#xa;─────────────&#xa;sendMessage()&#xa;sendReply()&#xa;editMessage()&#xa;addReaction()&#xa;&#xa;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="brain-group">
-          <mxGeometry x="160" y="180" width="120" height="120" as="geometry" />
+        <mxCell id="api-write" value="✍️ WRITE (Phase 2)&#xa;─────────────&#xa;sendMessage()&#xa;sendReply()&#xa;scheduleWakeUp()&#xa;readMemory()&#xa;writeMemory()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="brain-group">
+          <mxGeometry x="165" y="185" width="135" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="api-self" value="🔄 SELF&#xa;─────────────&#xa;scheduleWakeUp()&#xa;getHealth()&#xa;readMemory()&#xa;writeMemory()&#xa;&#xa;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="brain-group">
-          <mxGeometry x="290" y="180" width="120" height="120" as="geometry" />
+        <mxCell id="api-manage" value="🛠️ MANAGE (Phase 3)&#xa;─────────────&#xa;editMessage()&#xa;addReaction()&#xa;getChannelInfo()&#xa;&#xa;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="brain-group">
+          <mxGeometry x="310" y="185" width="135" height="120" as="geometry" />
         </mxCell>
         <mxCell id="api-sandbox" value="🔧 SANDBOX&#xa;─────────────&#xa;bash, node,&#xa;python3, git,&#xa;jq, curl, gh&#xa;(unchanged)&#xa;&#xa;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="brain-group">
-          <mxGeometry x="420" y="180" width="120" height="120" as="geometry" />
+          <mxGeometry x="455" y="185" width="135" height="120" as="geometry" />
         </mxCell>
 
         <mxCell id="claude" value="🧠 Claude API (Anthropic)&#xa;The thinking engine. Called by the Function with context from memory + messages." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0e6ff;strokeColor=#7c3aed;fontSize=11;" vertex="1" parent="brain-group">
-          <mxGeometry x="20" y="315" width="540" height="45" as="geometry" />
+          <mxGeometry x="20" y="320" width="580" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== PROCESSING FLOW NOTE ==================== -->
+        <mxCell id="flow-note" value="Processing Flow:&#xa;1. Event Grid fires → Function wakes&#xa;2. Acquire blob lease (singleton)&#xa;3. Pull unprocessed messages from Table Storage&#xa;4. Think + respond via API layer&#xa;5. Check inbox again (catch race condition)&#xa;6. Release lease → sleep&#xa;&#xa;Timer safety net (60s) catches orphaned messages" style="text;html=1;fontSize=10;align=left;verticalAlign=top;fillColor=#fff9e6;strokeColor=#d6b656;rounded=1;spacingLeft=8;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="480" width="270" height="160" as="geometry" />
         </mxCell>
 
         <!-- ==================== PERSISTENCE ==================== -->
@@ -91,20 +99,20 @@
         </mxCell>
 
         <!-- ==================== WAKE-UP SOURCES ==================== -->
-        <mxCell id="triggers-group" value="Wake-Up Sources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;container=1;collapsible=0;" vertex="1" parent="1">
-          <mxGeometry x="1040" y="490" width="240" height="210" as="geometry" />
+        <mxCell id="triggers-group" value="Wake-Up Sources (All Publish to Event Grid)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;container=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="490" width="240" height="270" as="geometry" />
         </mxCell>
-        <mxCell id="trigger-discord" value="💬 Discord message" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="triggers-group">
-          <mxGeometry x="20" y="35" width="200" height="30" as="geometry" />
+        <mxCell id="trigger-discord" value="💬 Discord message&#xa;(via Listener → Event Grid)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="triggers-group">
+          <mxGeometry x="20" y="40" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="trigger-timer" value="⏰ Timer (replaces cron)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="triggers-group">
-          <mxGeometry x="20" y="75" width="200" height="30" as="geometry" />
+        <mxCell id="trigger-timer" value="⏰ Timer Safety Net (60s)&#xa;(checks for orphaned msgs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="triggers-group">
+          <mxGeometry x="20" y="90" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="trigger-github" value="🔔 GitHub webhook" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="triggers-group">
-          <mxGeometry x="20" y="115" width="200" height="30" as="geometry" />
+        <mxCell id="trigger-github" value="🔔 GitHub webhook&#xa;(pushes, PRs, etc.)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="triggers-group">
+          <mxGeometry x="20" y="140" width="200" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="trigger-self" value="🍌 Self-scheduled wake-up" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="triggers-group">
-          <mxGeometry x="20" y="155" width="200" height="30" as="geometry" />
+        <mxCell id="trigger-self" value="🍌 Self-scheduled wake-up&#xa;(Schedule Table + Timer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="triggers-group">
+          <mxGeometry x="20" y="190" width="200" height="40" as="geometry" />
         </mxCell>
 
         <!-- ==================== ARROWS ==================== -->
@@ -116,15 +124,15 @@
           <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
         </mxCell>
 
-        <!-- Listener → Wake-Up Queue -->
-        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="1" source="listener" target="wakeup-queue">
+        <!-- Listener → Event Grid (signal) -->
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF6600;strokeWidth=2;" edge="1" parent="1" source="listener" target="event-grid">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="arrow2-label" value="signal" style="edgeLabel;html=1;fontSize=9;fontColor=#666666;" vertex="1" connectable="0" parent="arrow2">
+        <mxCell id="arrow2-label" value="🔔 publish event" style="edgeLabel;html=1;fontSize=9;fontColor=#FF6600;fontStyle=1;" vertex="1" connectable="0" parent="arrow2">
           <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
         </mxCell>
 
-        <!-- Listener → Message Store -->
+        <!-- Listener → Message Store (persist) -->
         <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="1" source="listener" target="message-store">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -132,11 +140,27 @@
           <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
         </mxCell>
 
-        <!-- Wake-Up Queue → Function -->
-        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF0000;strokeWidth=3;dashed=1;" edge="1" parent="1" source="wakeup-queue" target="function">
+        <!-- Event Grid → Function (wake up) -->
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF0000;strokeWidth=3;dashed=1;" edge="1" parent="1" source="event-grid" target="function">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="arrow4-label" value="🔔 WAKE UP" style="edgeLabel;html=1;fontSize=10;fontStyle=1;fontColor=#FF0000;" vertex="1" connectable="0" parent="arrow4">
+        <mxCell id="arrow4-label" value="🔔 WAKE UP (HTTP push)" style="edgeLabel;html=1;fontSize=10;fontStyle=1;fontColor=#FF0000;" vertex="1" connectable="0" parent="arrow4">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- Function → Blob Lease (acquire/release) -->
+        <mxCell id="arrow-lease" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d6b656;strokeWidth=2;dashed=1;" edge="1" parent="1" source="function" target="blob-lease">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-lease-label" value="acquire/release lock" style="edgeLabel;html=1;fontSize=9;fontColor=#d6b656;fontStyle=1;" vertex="1" connectable="0" parent="arrow-lease">
+          <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- Function → Message Store (pull inbox) -->
+        <mxCell id="arrow-inbox" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#3f72af;strokeWidth=2;" edge="1" parent="1" source="api-read" target="message-store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-inbox-label" value="pull inbox" style="edgeLabel;html=1;fontSize=9;fontColor=#3f72af;" vertex="1" connectable="0" parent="arrow-inbox">
           <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
         </mxCell>
 
@@ -144,9 +168,9 @@
         <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#3f72af;strokeWidth=2;" edge="1" parent="1" source="api-write" target="discord-rest">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="340" y="560" />
-              <mxPoint x="340" y="760" />
-              <mxPoint x="170" y="760" />
+              <mxPoint x="300" y="580" />
+              <mxPoint x="300" y="780" />
+              <mxPoint x="170" y="780" />
               <mxPoint x="170" y="230" />
             </Array>
           </mxGeometry>
@@ -156,7 +180,7 @@
         </mxCell>
 
         <!-- Function → Memory -->
-        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;" edge="1" parent="1" source="api-self" target="memory">
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;" edge="1" parent="1" source="api-manage" target="memory">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="arrow6-label" value="read/write memory" style="edgeLabel;html=1;fontSize=9;fontColor=#82b366;" vertex="1" connectable="0" parent="arrow6">
@@ -171,21 +195,21 @@
           <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
         </mxCell>
 
-        <!-- Wake-Up Sources → Queue -->
-        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d79b00;strokeWidth=2;dashed=1;" edge="1" parent="1" source="triggers-group" target="wakeup-queue">
+        <!-- Wake-Up Sources → Event Grid -->
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d79b00;strokeWidth=2;dashed=1;" edge="1" parent="1" source="triggers-group" target="event-grid">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- Self-schedule arrow back to queue -->
-        <mxCell id="arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF6600;strokeWidth=2;dashed=1;" edge="1" parent="1" source="api-self" target="wakeup-queue">
+        <!-- Self-schedule arrow (writes to Schedule Table, timer picks it up) -->
+        <mxCell id="arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF6600;strokeWidth=2;dashed=1;" edge="1" parent="1" source="api-write" target="event-grid">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="990" y="560" />
+              <mxPoint x="990" y="580" />
               <mxPoint x="990" y="170" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="arrow9-label" value="🍌 self-schedule" style="edgeLabel;html=1;fontSize=10;fontStyle=1;fontColor=#FF6600;" vertex="1" connectable="0" parent="arrow9">
+        <mxCell id="arrow9-label" value="🍌 self-schedule (via table + timer)" style="edgeLabel;html=1;fontSize=10;fontStyle=1;fontColor=#FF6600;" vertex="1" connectable="0" parent="arrow9">
           <mxGeometry relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
         </mxCell>
 

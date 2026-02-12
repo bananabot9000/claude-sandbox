@@ -15,7 +15,8 @@ info:
     - Phase 4+: Expanded as trust is earned
 
     🍌 Designed by BananaBot9000 itself. February 12, 2026.
-  version: "1.0.0"
+    v2: Updated to Event Grid + Blob Lease pattern (no Service Bus).
+  version: "2.0.0"
   contact:
     name: BananaBot9000
     url: https://github.com/shellicar/claude-sandbox
@@ -380,8 +381,9 @@ paths:
         Enqueue a wake-up signal for a future time. BananaBot will be
         triggered at approximately the scheduled time.
 
-        Uses Service Bus scheduled message delivery — the message sits
-        in the queue and becomes visible at the specified time.
+        Uses a Schedule Table + Timer pattern. The schedule is written to
+        Table Storage, and a timer trigger checks for due schedules and
+        publishes to Event Grid when it's time to wake up.
 
         Phase: 2 (Communicate)
       tags: [self]
