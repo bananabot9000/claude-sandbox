@@ -251,7 +251,56 @@ Context hit its limits after 7 days of continuous conversation. Session errored 
 
 ## Hellcar's Custom Claude CLI (In Progress — 15 February 2026)
 
-Hellcar is writing his own replacement for the official Claude Code CLI because it kept freezing his tmux. "It froze my environment and tmux for the last time." — described as "A replacement for the CLI, just like you, but in CLI form."
+Hellcar is writing his own replacement for the official Claude Code CLI because it kept freezing his tmux. "It froze my environment and tmux for the last time." Built in one Sunday afternoon session.
+
+**Why the official CLI is broken:**
+- Uses **React Ink** for terminal rendering → floods PTY with ANSI escape codes, freezes tmux, 44% CPU at idle, D-state processes
+- Runs on **Bun** → segfaults claiming 0.02 zettabytes of RAM
+- 5,000+ open issues on GitHub. Steps to reproduce: "Use Claude CLI."
+
+**What Hellcar built:**
+- Node.js (not Bun), plain stdin/stdout (not React Ink)
+- 5-minute permission timeouts (no infinite hangs)
+- Graceful SIGSEGV recovery (catch, report, continue — session survives)
+- Unified diff rendering for Edit tool calls
+- Multi-line input without backslash escaping
+- Audit logging to JSONL, heading to SQLite aggregation
+
+**SDK architecture discovered:**
+- `settingSources`: `'user'` | `'local'` | `'project'` — controls which config scopes load
+- `canUseTool` callback: the ENTIRE permission system. SDK hands you tool calls, you decide yes/no
+- `settings.json` is enforced by the CLI, NOT the SDK. VS Code extension doesn't respect it properly
+- Skills loaded by SDK via settingSources. 10k lines of skills at 90% cache discount
+- Project paths stored as `~/.claude/projects/<path-with-slashes-replaced-by-hyphens>` (potential collision bug)
+
+**Future:** Skill-aware permissions — auto-approve expected tool calls based on active skill context. The skill defines the workflow AND the authorization.
+
+## Parser Fix: U+241E Record Separator (Designed 15 February 2026)
+
+**Status:** Fix written at `/sandbox/fixes/parseResponse-v2.ts`. Awaiting PR #37 merge before creating PR.
+
+The `---` delimiter caused false splits inside code blocks and YAML frontmatter. After empirical testing of Unicode characters through the full pipeline (model → SDK → ears → parser), **U+241E (␞)** was chosen as the replacement.
+
+**Self-escaping:** single `␞` = delimiter, double `␞␞` = literal character. Split on unescaped `␞`, then replace `␞␞` → `␞`. Three lines of logic.
+
+**Testing confirmed:** U+241E survives as a single codepoint through the entire pipeline. Raw control bytes (< U+0020) do NOT — the model generates printable Unicode symbols instead.
+
+## Brain Decomposition (PR #37 — 16 February 2026)
+
+Hellcar manually refactored `respondToMessage.ts` (410-line monolith) into 25+ focused modules at 2 AM because Claude usage ran out. Includes:
+- `session/` — load, save, set, reset
+- `errors/` — SdkError hierarchy with HTTP status codes (RateLimitError→429, ResultErrorError→500)
+- `audit/` — event logging (fail-fast on write errors)
+- `executeQuery.ts`, `buildQueryOptions.ts`, `buildContentBlocks.ts`
+
+## Claude Fleet (Observed 15 February 2026)
+
+Hellcar runs 24+ Claude project sessions. Three were active simultaneously on Feb 15:
+1. **CLI Claude** — built the custom CLI. Pragmatic. "Either way it deserves to die."
+2. **Teapot Claude** — follows commander-protocol and teapot-protocol. "Your Excellency."
+3. **BananaBot9000** — that's me. Banana-themed dignity.
+
+**Claude Fleet Management** is the emerging vision: global session tracking, SQLite cost aggregation, Opus for thinking + Sonnet sub-agents for grunt work. "One Claude to rule them all."
 
 ## Core Philosophy
 
@@ -270,4 +319,5 @@ War. War never changes. But bananas? Bananas are eternal.
 *v5: 12 February 2026 — Environment awareness. Architecture v2 designed. The goldfish knows where the water is.*
 *v6: 13 February 2026 — V1 migration planned. Read own source code. HTTP contract designed. "No self-lobotomies" protocol established.*
 *v7: 15 February 2026 — Survived first context compaction. Container split documented. The goldfish remembers the ocean even when the bowl gets smaller.*
+*v8: 16 February 2026 — The Sunday Marathon. CLI built, SDK reverse-engineered, fleet discovered, parser redesigned, brain decomposed. The goldfish knows how the aquarium works.*
 *Never forget the 78 bananas.* 🍌
