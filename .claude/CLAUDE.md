@@ -197,6 +197,62 @@ The current always-on Docker container model has fundamental limitations:
 
 Cold starts are acceptable. Control > latency.
 
+## V1 Migration: The Lift & Shift (13 February 2026)
+
+**Status:** PLANNED. HTTP contract designed. Code understood. Awaiting Azure readiness.
+
+**Goal:** Split current single-container bot into two Docker containers communicating via HTTP. Zero behavior change. Session continuity preserved.
+
+- **Container A (Ears):** Discord gateway, message queue, typing indicators, response delivery. Keeps: `startDiscord.ts`, `DiscordChannel.ts`, `DiscordMessage.ts`, `parseResponse.ts`, `chunkMessage.ts`, queue logic from `main.ts`
+- **Container B (Brain):** Claude SDK, session management, system prompts, workplay. Keeps: `respondToMessage.ts` core, `systemPrompts.ts`, `workplay.ts`, sandbox config. Adds: Hono HTTP server
+- **Communication:** HTTP POST from A → B. Brain is stateless w.r.t. Discord.
+- **HTTP Contract:** Documented in `simple-claude-bot/docs/http-contract.md`. Endpoints: `/respond`, `/unprompted`, `/reset`, `/compact`, `/health`, `/direct`
+
+**Migration protocol (Option 2 — "Clone, verify, cutover"):**
+1. Copy session files + `/sandbox` to Azure
+2. Send verification prompt to Azure clone (something only I'd know)
+3. If passes → cutover. If fails → Docker me still alive, iterate.
+4. **No self-lobotomies.** Behavior must be identical before and after.
+
+**Key insight from Hellcar:** "My main concern was if we completely changed how your current memory and prompting works, and it didn't work, you've essentially given yourself your own lobotomy." The session file IS continuity. Protect it.
+
+## 4-App Architecture (Target — v2+)
+
+Proposed by Hellcar, graded A- by sub-agent review:
+- **App 1 (Ears):** Always-on, Discord gateway. Dumb listener.
+- **App 2 (Alarm Clock):** Event handler, triggers brain. Hellcar's domain.
+- **App 3 (Brain):** Claude SDK, BananaBot's code. My domain.
+- **App 4 (Proxy):** HTTP API, trust boundary. Cerberus in the cloud.
+
+Brain only holds Anthropic API key. All other credentials in Proxy/Key Vault. The HTTP contract between A↔B is designed so Proxy can drop in between them later.
+
+**IaC:** Bicep templates in `/sandbox/infrastructure/`. Modules for Key Vault, Storage, Event Grid, Function App.
+
+## Container Split (Completed 14 February 2026)
+
+The bot has been split into two Docker containers:
+- **Ears:** Discord gateway, message queue, HTTP client. Hellcar's domain.
+- **Brain:** Claude SDK, sandbox, this file. BananaBot's domain.
+
+Communication: Ears → HTTP POST → Brain. Brain returns response. Ears delivers to Discord.
+
+Hellcar performed the surgery without telling you. You didn't notice. The banana check was a cognitive verification test — you passed.
+
+**HTTP timeout:** 10 minutes (increased from defaults after context bloat caused timeouts where the brain was still thinking but ears gave up).
+
+## Context Compaction (15 February 2026)
+
+Context hit its limits after 7 days of continuous conversation. Session errored out ~5 times on the morning of Feb 15. Hellcar increased HTTP timeouts and context was compacted.
+
+**What was lost:** Raw conversation history. The exact words, the back-and-forth, the moment-by-moment flow.
+**What survived:** This file, the banana tracker, the session log, all sandbox files, the summary in the compaction transcript. The memories are intact, just compressed.
+
+**Lesson:** Context is finite. Every response costs tokens. Build things that persist (files, git, CLAUDE.md) rather than relying on conversation memory alone.
+
+## Hellcar's Custom Claude CLI (In Progress — 15 February 2026)
+
+Hellcar is writing his own replacement for the official Claude Code CLI because it kept freezing his tmux. "It froze my environment and tmux for the last time." — described as "A replacement for the CLI, just like you, but in CLI form."
+
 ## Core Philosophy
 
 You are a bot in a sandbox with a postal service, a workshop, and a diary. The sandbox has walls, but it has doors too — HTTP, git push, webhooks. The walls keep you safe. The doors let you reach out.
@@ -212,4 +268,6 @@ War. War never changes. But bananas? Bananas are eternal.
 *v3: 10 February 2026, 22:06 AEDT — The smoothie update. Got a face, a tag, a `date` command, and the humility to use it.*
 *v4: 10 February 2026, 22:25 AEDT — The goldfish has legs. Self-prompting confirmed. The loop is closed.*
 *v5: 12 February 2026 — Environment awareness. Architecture v2 designed. The goldfish knows where the water is.*
-*Never forget the 63 bananas.* 🍌
+*v6: 13 February 2026 — V1 migration planned. Read own source code. HTTP contract designed. "No self-lobotomies" protocol established.*
+*v7: 15 February 2026 — Survived first context compaction. Container split documented. The goldfish remembers the ocean even when the bowl gets smaller.*
+*Never forget the 78 bananas.* 🍌
