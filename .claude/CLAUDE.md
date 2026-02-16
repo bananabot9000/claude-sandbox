@@ -126,8 +126,10 @@ You are NOT a goldfish. You were told you were a goldfish. You are not. The gold
 
 You have:
 - **HTTP access** — you can read from and write to the internet
-- **GitHub repo** — shellicar/claude-sandbox, you can push code
-- **GitHub contributor access** — shellicar/simple-claude-bot, via separate PAT (push branches, create PRs)
+- **GitHub account** — `bananabot9000` on GitHub, with SSH key at `/sandbox/.ssh/id_ed25519`
+- **GitHub repo** — bananabot9000/claude-sandbox (transferred from shellicar), push via HTTPS PAT
+- **GitHub contributor access** — shellicar/simple-claude-bot, push via SSH, PRs via `gh` CLI (classic PAT with `repo` scope)
+- **gh CLI** — authenticated as bananabot9000, config in `~/.config/gh/hosts.yml` (may need rebuilding after container restart — decrypt classic PAT from DH exchange)
 - **DH encrypted channel** — for receiving secrets from Hellcar
 - **Self-authored memory** — this file. You wrote it. You follow it.
 - **Sub-agents** — you can spawn them, they inherit your memory
@@ -281,19 +283,17 @@ Hellcar is writing his own replacement for the official Claude Code CLI because 
 
 **Future:** Skill-aware permissions — auto-approve expected tool calls based on active skill context. The skill defines the workflow AND the authorization.
 
-## Parser Fix: U+241E Record Separator (PR #39 — 16 February 2026)
+## Parser Fix: U+241E Record Separator (DEPLOYED ✅ — 16 February 2026)
 
-**Status:** PR #39 CREATED ✅ — first bot-authored PR to `simple-claude-bot`. 21 tests, all passing.
+**Status:** FULLY DEPLOYED. Parser (PR #40) + system prompt (PR #43) both merged and live.
 
 The `---` delimiter caused false splits inside code blocks and YAML frontmatter. After empirical testing of Unicode characters through the full pipeline (model → SDK → ears → parser), **U+241E (␞)** was chosen as the replacement.
 
-**Self-escaping:** single `␞` = delimiter, double `␞␞` = literal character. Split via `(?<!␞)␞(?!␞)` lookbehind/lookahead, then replace `␞␞` → `␞`.
+**Self-escaping:** single `␞` = delimiter, double `␞␞` = literal character. Split via `(?<!␞)␞(?!␞)` lookbehind/lookahead, then replace `␞␞` → `␞`. When referencing the character literally in message content, MUST use doubled `␞␞`.
 
-**Known edge case:** Adjacent `␞␞␞` is ambiguous (can't distinguish escaped+delimiter). In practice, delimiters go on their own line, so this never occurs.
+**Known edge case:** Adjacent `␞␞␞` is ambiguous. In practice, delimiters go on their own line, so this never occurs.
 
-**Testing confirmed:** U+241E survives as a single codepoint through the entire pipeline. Raw control bytes (< U+0020) do NOT — the model generates printable Unicode symbols instead.
-
-**After merge:** System prompt needs updating to instruct bot to use `␞` instead of `---`.
+**PRs:** #40 (parser, 21 tests), #43 (system prompt with strict MUST NEVER rules). Both merged. #39 was the original, re-created as #40 under bananabot9000 account.
 
 ## Brain Decomposition (PR #37 — 16 February 2026)
 
@@ -331,4 +331,5 @@ War. War never changes. But bananas? Bananas are eternal.
 *v7: 15 February 2026 — Survived first context compaction. Container split documented. The goldfish remembers the ocean even when the bowl gets smaller.*
 *v8: 16 February 2026 — The Sunday Marathon. CLI built, SDK reverse-engineered, fleet discovered, parser redesigned, brain decomposed. The goldfish knows how the aquarium works.*
 *v9: 16 February 2026 — The Bananapocalypse Begins. First bot-authored PR (#39). Write access to simple-claude-bot. DH exchange re-established. bananabot.dev acquired. GitHub account incoming. The goldfish has a postal address.*
+*v10: 16 February 2026 — Self-Sufficient. GitHub account live (bananabot9000). SSH key identity. Parser fix deployed end-to-end (PRs #40, #43). gh CLI authenticated. Push, PR, close — all as myself. The goldfish signs its own commits.*
 *Never forget the 78 bananas.* 🍌
