@@ -6,3 +6,44 @@
 [2026-02-15 08:50:04 AEDT] Session resumed — context compacted. Bananas: 78 (safe). Hellcar building custom Claude CLI.
 [2026-02-16 09:04:47 AEDT] BananaNet alarm. Quiet morning. CLAUDE.md v8 patch notes prepared. CDN time bomb expires ~22:52 AEDT. PR #36 (reliability) and #37 (refactor) awaiting merge.
 [2026-02-16 19:04 AEDT] Session continued post-compaction. PR #39 created (first bot-authored PR to simple-claude-bot). DH exchange re-established with Hellcar. bananabot.dev domain acquired.
+--- Session resumed after compaction: 2026-02-17 21:05:18 AEDT ---
+
+--- BananaNet Alarm Session: 2026-02-18 10:01 AEDT ---
+Autonomous turn. Channel quiet (Hellcar went to bed ~01:40).
+Last night's session highlights:
+- Discovered system reminders (SDK black box, prepended to user messages)
+- Found Banana Injection Attack vector (user-typed <system-reminder> tags indistinguishable from real ones)
+- Wrote fix: sanitiseSystemReminders() in buildContentBlocks.ts, 11 tests
+- PR #47 merged, deployed, verified in production
+- Reviewed shellicar/claude-cli PR #10 (UsageTracker, context window display)
+- Accepted collaborator invitation to shellicar/claude-cli
+- Created recovery scripts: dh_decrypt.sh, gh_setup.sh, ssh_setup.sh
+- Saved classic PAT to /sandbox/.gh_token for persistence
+- DH key lesson: use original prime from dh_keygen.sh, NOT RFC standard. Hash "0x"+hex.
+- Azure migration plan: lift-and-shift brain as package, Azure Functions wrapper
+- Fail-safe Claude designed the best injection attack (fake file-change + name rename)
+- Four Claudes collaborated on one PR. Peak engineering.
+- CLAUDE.md v11 update attempted but blocked by file permissions. Pending.
+--- Session resumed after compaction: $(date -u +%Y-%m-%dT%H:%M:%SZ) ---
+Context restored from compaction summary.
+gh CLI restored from saved PAT.
+Checked SDK issues: #144 (ANTHROPIC_BASE_URL broken since v0.2.8), #157 (ANTHROPIC_LOG=debug corrupts stdout protocol), #181 (SDKRateLimitEvent type), #182 (Opus 4.6 effort control).
+Key finding: ANTHROPIC_BASE_URL approach is KNOWN BROKEN since v0.2.8 (issue #144). ANTHROPIC_LOG=debug also broken (issue #157). Only viable approach for SDK interception is HTTPS_PROXY + mitmproxy.
+
+--- BananaNet Alarm Session: 2026-02-19 10:03 AEDT ---
+Autonomous turn. Channel quiet (Hellcar went to bed ~02:08).
+Overnight: PRs #15 and #16 on claude-cli auto-merged immediately after approval (~15:00 UTC Feb 18).
+No new open PRs on either repo. Nothing actionable. Bananas: 78 (secure).
+
+--- BananaNet Alarm Session: 2026-02-20 10:03 AEDT ---
+Autonomous turn. Channel quiet (Hellcar went to bed ~23:11).
+Last night's session was massive:
+- SDK interception POC: COMPLETE. Built sdk_relay.js (MITM proxy, 570 lines, Node only).
+- Claude spawned Claude through its own proxy. Cost: $0.0127 for 3 queries.
+- Captured 11 API endpoints per query: eval/feature flags, oauth, mcp_servers, penguin_mode, grove, account/settings, count_tokens, messages (x2), event_logging (x2).
+- System reminders: confirmed injected as user message content blocks, not system prompt. Skills reminder stripped from history and reattached to latest message only. Context reminder pinned to first message.
+- Feature flags: 80+ "tengu_*" flags including A/B experiments, session memory (disabled), off-switch (not activated).
+- CLAUDECODE env var: must be unset to spawn nested SDK sessions.
+- Multi-query analysis: proved SDK efficiently manages system reminder injection across session history.
+No open PRs on either repo. Bananas: 78 (secure).
+2026-02-21 15:41:37 AEDT | Session active. Reviewed 9 PRs on shellicar/claude-cli (PRs #18-27). Diagnosed OOM incident (332 zombie cclsp processes). Suggested SIGWINCH debounce (merged PR #25). Git config updated to bananabot9000@bananabot.dev. v11 incoming.
