@@ -4,8 +4,8 @@ set -e
 # --- Configuration ---
 GPG_AGENT_CONF="$HOME/.gnupg/gpg-agent.conf"
 GPG_CONF="$HOME/.gnupg/gpg.conf"
-KEYCHAIN_NAME="gpg"
-KEYCHAIN_PATH="$HOME/Library/Keychains/${KEYCHAIN_NAME}.keychain-db"
+KEYCHAIN_NAME="gpg.keychain"
+KEYCHAIN_PATH="$HOME/Library/Keychains/${KEYCHAIN_NAME}-db"
 KEYCHAIN_TIMEOUT=1
 
 # --- Helpers ---
@@ -76,24 +76,28 @@ configure_agent() {
   echo ""
 
   # --- Keychain ---
+  # 1. Check if file exists
   if [ -f "$KEYCHAIN_PATH" ]; then
-    echo "  Keychain '$KEYCHAIN_NAME' already exists: $KEYCHAIN_PATH"
+    echo "  Keychain file exists: $KEYCHAIN_PATH"
   else
     echo "  Creating keychain '$KEYCHAIN_NAME'..."
     security create-keychain "$KEYCHAIN_NAME"
+    echo "  Created: $KEYCHAIN_PATH"
   fi
 
   # Set lock timeout
   security set-keychain-settings -t "$KEYCHAIN_TIMEOUT" "$KEYCHAIN_PATH"
   echo "  Keychain timeout: ${KEYCHAIN_TIMEOUT}s"
 
-  # Ensure it's in the search list
-  current_keychains=$(security list-keychains -d user | tr -d '"' | tr -d ' ' | tr '\n' ' ')
-  case "$current_keychains" in
-    *"$KEYCHAIN_PATH"*) ;;
-    *) security list-keychains -d user -s $current_keychains "$KEYCHAIN_PATH" ;;
-  esac
-  echo "  Keychain in search list: yes"
+  # 2. Check if it's in the search list, add if not
+  if security list-keychains -d user | grep -q "$KEYCHAIN_NAME"; then
+    echo "  Keychain in search list: yes"
+  else
+    echo "  Adding keychain to search list..."
+    current_keychains=$(security list-keychains -d user | tr -d '"' | tr -d ' ' | tr '\n' ' ')
+    security list-keychains -d user -s $current_keychains "$KEYCHAIN_PATH"
+    echo "  Keychain in search list: added"
+  fi
 
   # Point pinentry-mac at the gpg keychain
   defaults write org.gpgtools.common KeychainPath "$KEYCHAIN_PATH"
