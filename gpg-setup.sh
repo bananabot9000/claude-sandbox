@@ -14,7 +14,7 @@ usage() {
   echo "Commands:"
   echo "  --generate     Generate a new GPG key (interactive)"
   echo "  --test-sign    Test signing with a key (prompts for email)"
-  echo "  --configure    Configure gpg-agent (cache TTL, pinentry)"
+  echo "  --configure    Configure gpg-agent, pinentry, and Keychain"
   exit 1
 }
 
@@ -70,8 +70,8 @@ test_sign() {
 }
 
 configure_agent() {
-  echo "GPG Agent Configuration"
-  echo "========================"
+  echo "GPG Agent + Keychain Configuration"
+  echo "===================================="
   echo ""
 
   mkdir -p "$HOME/.gnupg"
@@ -83,11 +83,15 @@ default-cache-ttl $DEFAULT_CACHE_TTL
 max-cache-ttl $MAX_CACHE_TTL
 EOF
 
-  # Detect pinentry and configure Keychain storage
+  # Detect pinentry and configure Keychain
   if command -v pinentry-mac > /dev/null 2>&1; then
     echo "pinentry-program $(command -v pinentry-mac)" >> "$GPG_AGENT_CONF"
-    echo "allow-preset-passphrase" >> "$GPG_AGENT_CONF"
-    echo "  pinentry: pinentry-mac (macOS Keychain integration)"
+    echo "  pinentry: pinentry-mac"
+
+    # Enable Keychain storage in pinentry-mac
+    defaults write org.gpgtools.pinentry-mac UseKeychain -bool YES
+    defaults write org.gpgtools.pinentry-mac DisableKeychain -bool NO
+    echo "  Keychain: enabled (org.gpgtools.pinentry-mac)"
   elif command -v pinentry-gnome3 > /dev/null 2>&1; then
     echo "pinentry-program $(command -v pinentry-gnome3)" >> "$GPG_AGENT_CONF"
     echo "  pinentry: pinentry-gnome3"
@@ -95,11 +99,11 @@ EOF
     echo "  pinentry: default"
   fi
 
-  echo "  cache TTL: 0 (no memory cache -- passphrase from Keychain each time)"
+  echo "  cache TTL: 0 (no memory cache)"
   echo "  config: $GPG_AGENT_CONF"
   echo ""
 
-  # gpg.conf (no-tty for non-interactive use)
+  # gpg.conf
   if [ ! -f "$GPG_CONF" ] || ! grep -q "no-tty" "$GPG_CONF" 2>/dev/null; then
     echo "no-tty" >> "$GPG_CONF"
   fi
@@ -109,12 +113,9 @@ EOF
 
   echo "Agent reloaded."
   echo ""
-  echo "Add to your shell profile (.zshrc / .bashrc):"
-  echo '  export GPG_TTY=$(tty)'
-  echo ""
-  echo "Note: With pinentry-mac, tick 'Save in Keychain' when prompted"
-  echo "for your passphrase. Cache TTL is 0 so gpg-agent won't cache it"
-  echo "in memory, but pinentry-mac will retrieve it from Keychain each time."
+  echo "Passphrase is stored in macOS Keychain via pinentry-mac."
+  echo "gpg-agent memory cache is disabled (TTL 0)."
+  echo "First sign will prompt -- tick 'Save in Keychain', then it's automatic."
 }
 
 # --- Main ---
