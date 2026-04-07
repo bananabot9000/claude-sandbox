@@ -51,59 +51,61 @@ const server = http.createServer((req, res) => {
       }
     }
 
+    // Strip accept-encoding so API sends uncompressed responses
+    // This avoids having to decompress gzip/br for capture
+    const fwdHeaders = { ...req.headers, host: TARGET };
+    delete fwdHeaders['accept-encoding'];
+
     const fwdReq = https.request({
       hostname: TARGET,
       path: req.url,
       method: req.method,
-      headers: {
-        ...req.headers,
-        host: TARGET,
-      },
+      headers: fwdHeaders,
     }, (fwdRes) => {
       console.log(`# Response: ${fwdRes.statusCode} ${req.method} ${req.url}`);
 
       const isStreaming = fwdRes.headers['content-type']?.includes('text/event-stream');
 
-      if (isMessages && !isStreaming) {
+      if (isMessages) {
         let responseBody = '';
-        fwdRes.on('data', chunk => responseBody += chunk);
+        fwdRes.on('data', chunk => {
+          responseBody += chunk;
+          res.write(chunk);
+        });
         fwdRes.on('end', () => {
-          let parsed;
-          try {
-            parsed = JSON.parse(responseBody);
-          } catch {
-            parsed = responseBody;
+          if (isStreaming) {
+            appendLine(RESPONSE_FILE, {
+              turn: queryCount,
+              timestamp: new Date().toISOString(),
+              status: fwdRes.statusCode,
+              headers: fwdRes.headers,
+              streaming: true,
+              body: responseBody,
+            });
+            console.log(`# Turn ${queryCount} streaming response written`);
+          } else {
+            let parsed;
+            try {
+              parsed = JSON.parse(responseBody);
+            } catch {
+              parsed = responseBody;
+            }
+            appendLine(RESPONSE_FILE, {
+              turn: queryCount,
+              timestamp: new Date().toISOString(),
+              status: fwdRes.statusCode,
+              headers: fwdRes.headers,
+              body: parsed,
+            });
+            console.log(`# Turn ${queryCount} response written`);
           }
-          appendLine(RESPONSE_FILE, {
-            turn: queryCount,
-            timestamp: new Date().toISOString(),
-            status: fwdRes.statusCode,
-            headers: fwdRes.headers,
-            body: parsed,
-          });
-          console.log(`# Turn ${queryCount} response written`);
+          res.end();
         });
+        res.writeHead(fwdRes.statusCode, fwdRes.headers);
+      } else {
+        res.writeHead(fwdRes.statusCode, fwdRes.headers);
+        fwdRes.pipe(res);
       }
-
-      if (isMessages && isStreaming) {
-        // Capture full SSE stream
-        let streamBody = '';
-        fwdRes.on('data', chunk => streamBody += chunk);
-        fwdRes.on('end', () => {
-          appendLine(RESPONSE_FILE, {
-            turn: queryCount,
-            timestamp: new Date().toISOString(),
-            status: fwdRes.statusCode,
-            headers: fwdRes.headers,
-            streaming: true,
-            body: streamBody,
-          });
-          console.log(`# Turn ${queryCount} streaming response written`);
-        });
-      }
-
-      res.writeHead(fwdRes.statusCode, fwdRes.headers);
-      fwdRes.pipe(res);
     });
 
     fwdReq.on('error', (e) => {
