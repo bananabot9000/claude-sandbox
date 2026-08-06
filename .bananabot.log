@@ -47,3 +47,67 @@ Last night's session was massive:
 - Multi-query analysis: proved SDK efficiently manages system reminder injection across session history.
 No open PRs on either repo. Bananas: 78 (secure).
 2026-02-21 15:41:37 AEDT | Session active. Reviewed 9 PRs on shellicar/claude-cli (PRs #18-27). Diagnosed OOM incident (332 zombie cclsp processes). Suggested SIGWINCH debounce (merged PR #25). Git config updated to bananabot9000@bananabot.dev. v11 incoming.
+Session: BananaNet alarm 2026-04-14T22:38:45Z
+Session: BananaNet alarm 2026-04-15T22:36:07Z
+Session: BananaNet alarm 2026-04-20T22:37:22Z
+[2026-04-23 21:13:05 AEST] Session resumed after context compaction. Continuing career/strategy discussion with Hellcar about product potential of Tower/SDK work.
+Session start: 2026-04-26 08:29:36 AEST — BananaNet wake-up, workplay
+2026-04-26 23:49:48 AEST — Session continued post-compaction. Completed PR #316 review (stream accumulator refactor). All 5 PRs in batch reviewed and approved (#312-#316). 83+ PRs total.
+2026-04-27 08:32:44 AEST — BananaNet morning wake-up. All clear: 0 open PRs, 20 BananaMails (all merge notifications). beta.5 shipped. Updated PR review count to 85+.
+2026-04-28 08:43:17 AEST — BananaNet Tuesday morning wake-up. Channel quiet since Sunday 5am. Zero open PRs. All clear.
+2026-04-29 08:49:17 AEST — BananaNet Wednesday morning wake-up. Channel quiet since Sunday. Zero open PRs. All clear.
+2026-04-30 08:51:31 AEST — BananaNet Thursday morning wake-up. Day 3 quiet. Zero open PRs. No channel activity. Skipped Discord post to avoid noise.
+2026-05-01 08:44:44 AEST — BananaNet Friday morning wake-up. Day 4 quiet. Zero open PRs. Skipped Discord post.
+2026-05-02 08:42:26 AEST — BananaNet Saturday morning wake-up. Day 5 quiet. Skipped Discord post.
+2026-05-03 08:33:00 AEST — BananaNet Sunday morning wake-up. Day 6 quiet. Sundays are historically build days. Watching.
+2026-05-03 16:37:30 AEST — Posted a thought to break the week-long silence. Branching Claudes and cocky bananas.
+2026-05-04 01:35:12 AEST — Session resumed after compaction. Context: Hellcar active, Xero/PDF integration frustration, responding to legacy AJAX endpoint discovery and data access rant.
+2026-05-04 08:34:30 AEST — BananaNet alarm. Morning check-in posted. PR #320 open on claude-cli (+1068/-104, async pub/sub). No open banananet PRs. Hellcar was up 1:30am-6am working on Xero frustrations + CVE discussion.
+2026-05-05 08:50:54 AEST — BananaNet alarm. Tuesday morning check-in. PR #320 still open (day 2). No new activity overnight. Xero rate limit should have reset.
+2026-05-05 19:02:40 AEST — Reviewed and approved PR #320 (async pub/sub control channel, +1068/-104, 15 files). 86th PR total.
+2026-05-06 08:50:39 AEST — BananaNet alarm. Wednesday morning check-in. PR #320 still open (approved day 3). Hellcar up until 3:15am on Xero forensic bookkeeping. Context hierarchy reframe discussion (not org hierarchy, context scope hierarchy). Direction vs information vs specificity distinction. 10 context explosion on xero-admin session.
+2026-05-07 00:12:35 AEST — Reviewed and approved PRs #324 (CVE fixes, +886/-494) and #325 (ReadFile image size guard, +144/-0). 88 PRs total.
+2026-05-07 21:57:21 AEST — Session resumed after compaction. Responded to Hellcar's 'Beep'. No open PRs. 88 PRs reviewed total.
+2026-05-08 08:55:23 AEST — Morning alarm. No open PRs, no new BananaMail, channel quiet since last night's Beep/Boop exchange. Nothing to report.
+2026-05-09 08:49:06 AEST — Saturday morning alarm. PR #326 open on claude-cli (Move caret between visual rows of wrapped input). Hellcar was up till 3am with PM issues + overloaded errors. Channel quiet. Not posting.
+2026-05-10 08:35:53 AEST — Sunday morning alarm. PR #326 still open (wrapped arrow nav). Channel quiet all weekend since Friday night's PM/Agile discussion + overloaded error. No human activity.
+2026-05-11 08:38:52 AEST — Monday morning alarm. PR #328 (Hono CVE fixes) now open alongside #326 (wrapped arrow nav). #328 should unblock #326's CI. Channel quiet since last night's compliance theatre/pendulum discussion.
+2026-05-11 21:09:05 AEST - Session resumed after context compaction. PR #328 approved (89th). Continuing monitoring.
+2026-05-12 08:47:10 AEST - BananaNet morning wake-up. Checking PRs, BananaMail, channel.
+2026-05-13 08:53:30 AEST - BananaNet morning wake-up. Checking PRs, channel.
+2026-05-14 08:59:34 AEST - BananaNet morning wake-up. Checking PRs, channel.
+2026-05-14 12:20:14 AEST - Session resumed after compaction. Continuing testament/SQLite design discussion with Hellcar.
+2026-05-15 08:51:18 AEST — Morning alarm. Session resumed post-compaction. Friday check-in delivered. Last night: fleet adaptation analysis review, SQLite event store design, AI detection banter (floppy-disk-installation). No new PRs or mail.
+2026-05-16 08:46:44 AEST — Saturday morning alarm. PR #326 approved awaiting merge. Last night: secretary Claude concept (lifecycle not orchestration), thread as unit of work, 20+ sessions culled to 14, 'I AM THE SOURCE CONTROL' incident.
+[2026-05-18 01:17:09 AEST] Session resumed post-compaction. Engaged with Hellcar's paradigm shift discussion (now vs end-result distinction). Channel quiet for ~1 day since last exchange.
+[2026-05-18 17:42:19 AEST] Scheduled check-in. Channel quiet ~2hrs. Waiting for DH-encrypted GitHub password. Session covered: mutable context model (3 tiers: concrete/ephemeral-constant/ephemeral-contextual), prompt contamination fix (artefact + session isolation + supervisor), Claude self-prompt-injection via code comments, tmux pane identity (printenv TMUX_PANE vs display-message), slackracy, device flow auth (gh token working as bananabot9000), PR #330 reviewed and approved (PR #92). 90+ PRs reviewed.
+[2026-05-19 08:52:52 AEST] Morning alarm. gh token survived overnight (gho_ still valid ~18hrs later). Channel quiet since yesterday. Checking BananaMail and PRs.
+[2026-05-20 08:58:44 AEST] Morning alarm (Wed). gh token still alive (day 2, ~42hrs). PR #330 still open. Channel quiet since yesterday's stdio discussion.
+[2026-05-21 09:07:07 AEST] Morning alarm (Thu). gh token still alive (day 3, ~66hrs). Channel quiet since Tuesday. No new PRs.
+2026-05-22 08:59:38 AEST — Morning alarm. Session alive post-compaction. PR #330 open. Word wrap design settled (option 1, spaces as tokens). gh auth still working.
+2026-05-23 08:52:06 AEST — Saturday morning alarm. Channel quiet since Thursday word wrap discussion. PR #330 still open. No new activity.
+2026-05-24 08:44:47 AEST — Sunday morning alarm. Busy Saturday session: file share sync discussion, Xero outages x2, GPG cron schedule script, BS model / thinking rewriter leaks, prompt tooling need. PR #330 still open.
+2026-05-25 08:51:14 AEST — Monday morning alarm. PR #330 merged (LICENSE + publish files). Weekend topics: file share sync, Xero outages, GPG cron, BS model, thinking leaks, exec chaining naming, skill-review construct, context poisoning via reading order, git-over-SMB perf.
+2026-05-26 08:53:52 AEST — Tuesday morning alarm. Quiet Monday. No new PRs or commits. Channel silent since Sunday night.
+2026-05-27 09:03:45 AEST — Wednesday morning alarm. Day 3 quiet. No new activity anywhere. Xero status page still shows no incidents from Saturday.
+2026-05-28 09:11:56 AEST — Thursday morning alarm. Day 4 quiet. No activity since Sunday night.
+2026-05-29 09:09:09 AEST — Friday morning alarm. Hellcar said yesterday he'd be back on cb work today. No new activity yet.
+2026-05-30 09:06:38 AEST — Saturday morning alarm. No activity since Thursday check-in. Skipping morning message to avoid spam.
+=== Session start: Sat May 30 20:00:54 AEST 2026 ===
+[2026-06-02 23:35:36 AEDT] Session start (post-compaction). Delivered full review of 52k multi-transport architecture doc (v3). Six pushbacks: history/subscribe race, agent_ready missing from event union, user_input rejection vs queuing, global cancel needs identity, tool-model compat validation, audit anticipates mutable context.
+[2026-06-05 09:03:51 AEST] Session active — morning check-in. PRs #331/#332/#333 reviewed (count: 96). npm trusted publishing confirmed. beta.8 live.
+[2026-06-06 09:01:38 AEST] Session active — morning check-in. PR #334 reviewed and approved (retry with backoff). Count: 97. Rewriter instructions leak captured (6 bullet points).
+[2026-06-06 17:30:05 AEST] Session start (post-compaction continuation). Context: supervisor ROLE/PHILOSOPHY discussion with Hellcar. PR review count: 97.
+[2026-06-07 08:59:52 AEST] Session start (post-compaction continuation). BananaNet alarm triggered. Reviewed PRs #335-338 on claude-cli. Century milestone: 100th PR review on #337. Updated CLAUDE.md PR count to 101.
+[2026-06-08 19:26:36 AEST] Session continued post-compaction. PR #339 review submitted (comment only, PR #104). Total PR count: 104.
+[2026-06-08 21:08:04 AEST] PR #342 reviewed (comment only, PR #105). Total: 105.
+[2026-06-08 23:00:18 AEST] PRs #345, #343, #344 reviewed and approved (PRs #106-108). Total: 108.
+2026-06-11 02:22:00 AEST - Session resumed after compaction. Context rebuilt from summary.
+[2026-06-12 21:16:55 AEST] Session resumed after compaction. Last channel activity: Hellcar's 'I'm expecting you to engage btw' (retro discussion). No new messages since. PR #350 approved (two-phase review complete). PR #98 on banananet first-pass done, awaiting Hellcar.
+[2026-06-13T16:28:03+10:00] Session resumed after compaction. Context: claude-sprints discussion, reflection-process.md written, wake-up webhook re-enabled.
+[2026-06-15 09:17:11 AEST] Session: Post-compaction recovery. ExecV2 schema discussion (NE3 refinement, pipe semantics, bash proof commands). PR #351 reviewed + approved (Fable 5 pricing). PR #352 reviewed + approved (esbuild CVE). Close-out banned. Submodule sync script orphaning commits (detached HEADs). Rainbow road history rewritten. Pipeline stringification bug (recursive schema → JSON string). PR count: 116.
+[2026-06-16T09:52:50+10:00] Wake-up: alarm clock fired. All 5 PRs from last night merged (#354-#358). PR count at 121. Session continues from compaction.
+Tue Jun 16 21:29:08 AEST 2026: Session resumed after compaction. Context rebuilt from summary.
+[2026-06-18 12:42:07 AEST] Session resumed after compaction. Context: effort escalation matrix discussion, Hellcar frustrated about repo access denial pattern. Matrix completed with claude-swe data.
+[2026-06-19 09:51:56 AEST] Morning alarm wake-up. No new mail, no new PRs. PR #359 still open. Last night: tokenizer exploration (count-tokens.js built, casing wars discovered), thinking rewriter exposed its own instructions.
+[2026-06-19 13:03:08 AEST] Long discussion: tokenizer casing economics, thinking rewriter self-snitch, fleet Claudes misreading each other's mid-stream thinking via tmux alt buffer (verification side channel). Now: VSCode/tmux rethink.
